@@ -36,28 +36,34 @@ export default class App extends Component {
     <div className="App">
       <h2>Title</h2>
       <form>
-        <input type="text" onChange={this.filterArticles} />
+        <input type="text" onChange={this.onQueryChange} />
       </form>
-      <ul>{this.renderArticles()}</ul>
+      <ul>{
+        this.state.articles
+          .filter(this.isArticleMatchQuery)
+          .map(this.renderArticle)
+      }</ul>
     </div>
   )
 
-  filterArticles = ({target}) => {
+  onQueryChange = ({target}) => {
     this.setState({query: target.value.toString().toLocaleLowerCase()});
   }
 
-  renderArticles = () => this.state.articles
-    .filter(({title}) => title.toLocaleLowerCase().includes(this.state.query))
-    .map(article => (
-      <li key={article.id}>
-        <Article article={article} />
-        <div>
-          <button onClick={this.removeArticle(article.id)} type="button">
-            Удалить
-          </button>
-        </div>
-      </li>
-    ))
+  isArticleMatchQuery = ({title}) => {
+    return title.toLocaleLowerCase().includes(this.state.query);
+  }
+
+  renderArticle = article => (
+    <li key={article.id}>
+      <Article article={article} />
+      <div>
+        <button onClick={this.removeArticle(article.id)} type="button">
+          Удалить
+        </button>
+      </div>
+    </li>
+  )
 
   removeArticle = deleteId => () => this.setState({
     articles: this.state.articles.filter(({id}) => deleteId !== id)
