@@ -1,6 +1,7 @@
 import {Component} from 'react';
 // import logo from './logo.svg';
 import './App.css';
+import Article from './Article';
 
 const articles = [
   {
@@ -21,58 +22,44 @@ const articles = [
   },
 ];
 
-class App extends Component {
+export default class App extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {articles};
-    // this.defineInterval();
+    this.state = {
+      articles,
+      query: '',
+    };
   }
 
-  render() {
-    return (
-      <div className="App">
-        <h2>Title</h2>
-        <ul>{this.renderArticles()}</ul>
-      </div>
-    );
+  render = () => (
+    <div className="App">
+      <h2>Title</h2>
+      <form>
+        <input type="text" onChange={this.filterArticles} />
+      </form>
+      <ul>{this.renderArticles()}</ul>
+    </div>
+  )
+
+  filterArticles = ({target}) => {
+    this.setState({query: target.value.toString().toLocaleLowerCase()});
   }
 
-  renderArticles() {
-    return this.state.articles.map(article => (
+  renderArticles = () => this.state.articles
+    .filter(({title}) => title.toLocaleLowerCase().includes(this.state.query))
+    .map(article => (
       <li key={article.id}>
+        <Article article={article} />
         <div>
-          <a href={article.url}>article.title</a>
-          <i>({article.author})</i>
-        </div>
-        <div>
-          <i style={{marginRight: 5}}>Comments: {article.num_comments}</i>
-          <i>Points: {article.points} of 5</i>
-        </div>
-        <div>
-          <button onClick={() => this.removeArticle(article.id)} type="button">
+          <button onClick={this.removeArticle(article.id)} type="button">
             Удалить
           </button>
         </div>
       </li>
-    ));
-  }
+    ))
 
-  removeArticle(id) {
-    const articles = this.state.articles.filter(({id: articleId}) => articleId !== id);
-    this.setState({articles});
-  }
-
-  defineInterval() {
-    console.debug('Interval defined');
-    setInterval(() => {
-      const articles = this.state.articles;
-      articles[0].points = Math.round(Math.random() * 5);
-      this.setState({articles});
-
-      console.debug('State refreshed, new points:', articles[0].points);
-    }, 10e3);
-  }
+  removeArticle = deleteId => () => this.setState({
+    articles: this.state.articles.filter(({id}) => deleteId !== id)
+  })
 }
-
-export default App;
