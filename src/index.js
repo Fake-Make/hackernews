@@ -4,6 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+if (module.hot && module.hot.accept) {
+  module.hot.accept();
+  console.debug('module.hot accepted');
+}
+
 ReactDOM.render(
   <React.StrictMode>
     <App />
