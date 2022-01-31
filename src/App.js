@@ -59,54 +59,43 @@ export default class App extends Component {
   })
 }
 
-class Search extends Component {
-  render = () => (
-    <form>
-      <input
-        value={this.props.query}
-        onChange={this.props.onQueryChange}
-      />
-    </form>
-  );
-}
+const Search = ({query, onQueryChange}) => (
+  <form>
+    <input value={query} onChange={onQueryChange}/>
+  </form>
+);
 
-class Articles extends Component {
-  isArticleMatchQuery = ({title}) =>
-    title.toLocaleLowerCase().includes(this.props.query.toLocaleLowerCase());
+const isArticleMatchQuery = query => ({title}) =>
+  title.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 
-  render = () => (
-    <ul>{
-      this.props.articles
-        .filter(this.isArticleMatchQuery)
-        .map(this.renderArticle)
-    }</ul>
-  );
+const renderArticle = onRemoveArticle => article => (
+  <li key={article.id}>
+    <header>
+      <a href={article.url}>{article.title}</a>
+      <i>({article.author})</i>
+    </header>
+    <main>
+      {article.content || ''}
+    </main>
+    <aside>
+      <i style={{marginRight: 5}}>Comments: {article.num_comments}</i>
+      <i>Points: {article.points} of 5</i>
+    </aside>
+    <footer>
+      <Button onClick={onRemoveArticle(article.id)}>
+        Удалить
+      </Button>
+    </footer>
+  </li>
+);
 
-  renderArticle = article => (
-    <li key={article.id}>
-      <header>
-        <a href={article.url}>{article.title}</a>
-        <i>({article.author})</i>
-      </header>
-      <main>
-        {article.content || ''}
-      </main>
-      <aside>
-        <i style={{marginRight: 5}}>Comments: {article.num_comments}</i>
-        <i>Points: {article.points} of 5</i>
-      </aside>
-      <footer>
-        <Button onClick={this.props.onRemoveArticle(article.id)}>
-          Удалить
-        </Button>
-      </footer>
-    </li>
-  );
-}
+const Articles = ({articles, query, onRemoveArticle}) => (
+  <ul>{
+    articles
+      .filter(isArticleMatchQuery(query))
+      .map(renderArticle(onRemoveArticle))
+  }</ul>
+);
 
-class Button extends Component {
-  render = () => {
-    const {onClick, className = '', children} = this.props;
-    return <button onClick={onClick} className={className}>{children}</button>;
-  }
-}
+const Button = ({onClick, className = '', children}) =>
+  <button onClick={onClick} className={className}>{children}</button>;
