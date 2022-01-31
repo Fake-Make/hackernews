@@ -32,12 +32,14 @@ export default class App extends Component {
   }
 
   render = () => (
-    <div className="App">
-      <h2>Hacker News</h2>
+    <div className="page">
+      <h2 className="page-header">Hacker News</h2>
+      <aside className="interactions">
       <Search 
         query={this.state.query}
         onQueryChange={this.onQueryChange}
       />
+      </aside>
       <Articles
         articles={this.state.articles}
         query={this.state.query}
@@ -61,7 +63,7 @@ export default class App extends Component {
 
 const Search = ({query, onQueryChange}) => (
   <form>
-    <input value={query} onChange={onQueryChange}/>
+    <input value={query} onChange={onQueryChange} placeholder="Поиск"/>
   </form>
 );
 
@@ -69,12 +71,11 @@ const isArticleMatchQuery = query => ({title}) =>
   title.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 
 const renderArticle = onRemoveArticle => article => (
-  <li key={article.id}>
-    <header>
-      <a href={article.url}>{article.title}</a>
-      <i>({article.author})</i>
+  <li key={article.id} className="article">
+    <header className="article-header">
+      <a href={article.url}>{article.title}</a> <i>({article.author})</i>
     </header>
-    <main>
+    <main className="article-content">
       {article.content || ''}
     </main>
     <aside>
@@ -90,7 +91,7 @@ const renderArticle = onRemoveArticle => article => (
 );
 
 const Articles = ({articles, query, onRemoveArticle}) => (
-  <ul>{
+  <ul className="articles">{
     articles
       .filter(isArticleMatchQuery(query))
       .map(renderArticle(onRemoveArticle))

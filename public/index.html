@@ -28,10 +28,8 @@
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <i style="color: #ddd">
-      HMR работает, если число 
-      <script>document.write(Math.random())</script>
-       не меняется
+    <i style="color: #aaa; position: absolute">
+      hash: <script>document.write(Math.random().toString().slice(2))</script>
     </i>
     <div id="root"></div>
     <!--
