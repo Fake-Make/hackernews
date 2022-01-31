@@ -74,15 +74,13 @@ class Articles extends Component {
   isArticleMatchQuery = ({title}) =>
     title.toLocaleLowerCase().includes(this.props.query.toLocaleLowerCase());
 
-  render = () => {
-    return (
-      <ul>{
-        this.props.articles
-          .filter(this.isArticleMatchQuery)
-          .map(this.renderArticle)
-      }</ul>
-    );
-  }
+  render = () => (
+    <ul>{
+      this.props.articles
+        .filter(this.isArticleMatchQuery)
+        .map(this.renderArticle)
+    }</ul>
+  );
 
   renderArticle = article => (
     <li key={article.id}>
@@ -98,10 +96,17 @@ class Articles extends Component {
         <i>Points: {article.points} of 5</i>
       </aside>
       <footer>
-        <button onClick={this.props.onRemoveArticle(article.id)} type="button">
+        <Button onClick={this.props.onRemoveArticle(article.id)}>
           Удалить
-        </button>
+        </Button>
       </footer>
     </li>
   );
+}
+
+class Button extends Component {
+  render = () => {
+    const {onClick, className = '', children} = this.props;
+    return <button onClick={onClick} className={className}>{children}</button>;
+  }
 }
