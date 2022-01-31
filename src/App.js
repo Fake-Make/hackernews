@@ -1,7 +1,6 @@
 import {Component} from 'react';
 // import logo from './logo.svg';
 import './App.css';
-import Article from './Article';
 
 const articles = [
   {
@@ -34,15 +33,16 @@ export default class App extends Component {
 
   render = () => (
     <div className="App">
-      <h2>Title</h2>
-      <form>
-        <input type="text" onChange={this.onQueryChange} />
-      </form>
-      <ul>{
-        this.state.articles
-          .filter(this.isArticleMatchQuery)
-          .map(this.renderArticle)
-      }</ul>
+      <h2>Hacker News</h2>
+      <Search 
+        query={this.state.query}
+        onQueryChange={this.onQueryChange}
+      />
+      <Articles
+        articles={this.state.articles}
+        query={this.state.query}
+        onRemoveArticle={this.removeArticle}
+      />
     </div>
   )
 
@@ -54,18 +54,54 @@ export default class App extends Component {
     return title.toLocaleLowerCase().includes(this.state.query);
   }
 
-  renderArticle = article => (
-    <li key={article.id}>
-      <Article article={article} />
-      <div>
-        <button onClick={this.removeArticle(article.id)} type="button">
-          Удалить
-        </button>
-      </div>
-    </li>
-  )
-
   removeArticle = deleteId => () => this.setState({
     articles: this.state.articles.filter(({id}) => deleteId !== id)
   })
+}
+
+class Search extends Component {
+  render = () => (
+    <form>
+      <input
+        value={this.props.query}
+        onChange={this.props.onQueryChange}
+      />
+    </form>
+  );
+}
+
+class Articles extends Component {
+  isArticleMatchQuery = ({title}) =>
+    title.toLocaleLowerCase().includes(this.props.query.toLocaleLowerCase());
+
+  render = () => {
+    return (
+      <ul>{
+        this.props.articles
+          .filter(this.isArticleMatchQuery)
+          .map(this.renderArticle)
+      }</ul>
+    );
+  }
+
+  renderArticle = article => (
+    <li key={article.id}>
+      <header>
+        <a href={article.url}>{article.title}</a>
+        <i>({article.author})</i>
+      </header>
+      <main>
+        {article.content || ''}
+      </main>
+      <aside>
+        <i style={{marginRight: 5}}>Comments: {article.num_comments}</i>
+        <i>Points: {article.points} of 5</i>
+      </aside>
+      <footer>
+        <button onClick={this.props.onRemoveArticle(article.id)} type="button">
+          Удалить
+        </button>
+      </footer>
+    </li>
+  );
 }
