@@ -1,6 +1,6 @@
 import {Component} from 'react';
 
-import {Articles, Search} from './ArticlesSubcomponents';
+import {Articles, Search, Button} from './ArticlesSubcomponents';
 // import logo from './logo.svg';
 import './App.css';
 
@@ -16,6 +16,7 @@ export default class App extends Component {
       error: null,
       queryFilter: '',
       querySearch: '',
+      page: 0,
     };
   }
 
@@ -23,9 +24,12 @@ export default class App extends Component {
     this.collectArticles();
   };
 
-  collectArticles = async () => {
-    return fetch(`${API_SEARCH}?query=${this.state.querySearch}`).then(response => response.json())
-      .then(result => this.setState({result}))
+  collectArticles = async (page = 0) => {
+    return fetch(`${API_SEARCH}?query=${this.state.querySearch}&page=${page}`).then(response => response.json())
+      .then(result => {
+        const hits = [...this.state.result.hits || [], ...result.hits];
+        this.setState({result: {...result, hits}, page});
+      })
       .catch(error => this.setState({error}));
   }
 
@@ -44,6 +48,10 @@ export default class App extends Component {
         query={this.state.queryFilter}
         onRemoveArticle={this.removeArticle}
       />
+      <Button
+        onClick={this.moreArticles}
+        className="centered"
+      >Показать больше</Button>
     </div>
   );
 
@@ -51,6 +59,10 @@ export default class App extends Component {
   onRefresh = querySearch => () => this.setState({querySearch}, () => {
     this.collectArticles().then(() => this.setState({queryFilter: ''}));
   });
+
+  moreArticles = () => {
+    this.collectArticles(this.state.page + 1);
+  }
 
   removeArticle = deleteId => () => this.setState({result: {
     ...this.state.result,
