@@ -2,33 +2,28 @@ import {Component} from 'react';
 // import logo from './logo.svg';
 import './App.css';
 
-const articles = [
-  {
-    title: 'React',
-    url: 'https://reactjs.org/',
-    author: 'Jordan Walke',
-    num_comments: 3,
-    points: 4,
-    id: 0,
-  },
-  {
-    title: 'Redux',
-    url: 'https://redux.js.org/',
-    author: 'Dan Abramov, Andrew Clark',
-    num_comments: 2,
-    points: 5,
-    id: 1,
-  },
-];
+const API_URL = 'https://hn.algolia.com/api/v1';
+const API_SEARCH = `${API_URL}/search`;
 
 export default class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      articles,
+      articles: [],
+      error: null,
       query: '',
     };
+  }
+
+  componentDidMount = () => {
+    this.collectArticles();
+  };
+
+  collectArticles = () => {
+    fetch(`${API_SEARCH}?query=${this.state.query}`).then(response => response.json())
+      .then(({hits: articles}) => this.setState({articles}))
+      .catch(error => this.setState({error}));
   }
 
   render = () => (
@@ -46,19 +41,15 @@ export default class App extends Component {
         onRemoveArticle={this.removeArticle}
       />
     </div>
-  )
+  );
 
   onQueryChange = ({target}) => {
     this.setState({query: target.value.toString().toLocaleLowerCase()});
-  }
-
-  isArticleMatchQuery = ({title}) => {
-    return title.toLocaleLowerCase().includes(this.state.query);
-  }
+  };
 
   removeArticle = deleteId => () => this.setState({
-    articles: this.state.articles.filter(({id}) => deleteId !== id)
-  })
+    articles: this.state.articles.filter(({objectID}) => deleteId !== objectID)
+  });
 }
 
 const Search = ({query, onQueryChange}) => (
@@ -68,10 +59,10 @@ const Search = ({query, onQueryChange}) => (
 );
 
 const isArticleMatchQuery = query => ({title}) =>
-  title.toLocaleLowerCase().includes(query.toLocaleLowerCase());
+  title?.toLocaleLowerCase().includes(query.toLocaleLowerCase());
 
 const renderArticle = onRemoveArticle => article => (
-  <li key={article.id} className="article">
+  <li key={article.objectID} className="article">
     <header className="article-header">
       <a href={article.url}>{article.title}</a> <i>({article.author})</i>
     </header>
@@ -79,24 +70,26 @@ const renderArticle = onRemoveArticle => article => (
       {article.content || ''}
     </main>
     <aside>
-      <i style={{marginRight: 5}}>Comments: {article.num_comments}</i>
-      <i>Points: {article.points} of 5</i>
+      <p><i style={{marginRight: 5}}>Комментариев: {article.num_comments}</i></p>
+      <p><i>Рейтинг: {article.points}</i></p>
     </aside>
     <footer>
-      <Button onClick={onRemoveArticle(article.id)}>
+      <Button onClick={onRemoveArticle(article.objectID)}>
         Удалить
       </Button>
     </footer>
   </li>
 );
 
-const Articles = ({articles, query, onRemoveArticle}) => (
-  <ul className="articles">{
-    articles
-      .filter(isArticleMatchQuery(query))
-      .map(renderArticle(onRemoveArticle))
-  }</ul>
-);
+const Articles = ({articles, query, onRemoveArticle}) => {
+  const renderedArticles = articles
+    .filter(isArticleMatchQuery(query))
+    .map(renderArticle(onRemoveArticle));
+
+  return renderedArticles.length ?
+    <ul className="articles">{renderedArticles}</ul> :
+    <p className="articles"><i>Нет доступных статей</i></p>;
+}
 
 const Button = ({onClick, className = '', children}) =>
   <button onClick={onClick} className={className}>{children}</button>;
