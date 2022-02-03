@@ -1,11 +1,36 @@
-export const Search = ({query, onQueryChange}) => (
-  <form>
-    <input value={query} onChange={onQueryChange} placeholder="Поиск"/>
-  </form>
-);
+import {Component} from 'react';
 
-const isArticleMatchQuery = query => ({title}) =>
-  title?.toLocaleLowerCase().includes(query.toLocaleLowerCase());
+export class Search extends Component {
+  constructor(props) {
+    super(props);
+
+    const {query} = props;
+    this.state = {query};
+  }
+
+  onQueryChange = ({target}) => {
+    this.setState({query: target.value.toLocaleLowerCase()});
+  }
+
+  render = () => (
+    <form>
+      <input value={this.state.query} onChange={this.onQueryChange} placeholder="Поиск"/>
+      <Button
+        onClick={this.props.onFilter(this.state.query)}
+        className="lh-16"
+        title="Фильтровать"
+      >🔍</Button>
+      <Button
+        onClick={this.props.onRefresh(this.state.query)}
+        className="lh-16"
+        title="Обновить"
+      >🗘</Button>
+    </form>
+  );
+}
+
+const isArticleMatchQuery = queryInLowerCase => ({title}) =>
+  title?.toLocaleLowerCase().includes(queryInLowerCase);
 
 const renderArticle = onRemoveArticle => article => (
   <li key={article.objectID} className="article">
@@ -37,5 +62,5 @@ export const Articles = ({articles, query, onRemoveArticle}) => {
     <p className="articles"><i>Нет доступных статей</i></p>;
 }
 
-export const Button = ({onClick, className = '', children}) =>
-  <button onClick={onClick} className={className}>{children}</button>;
+export const Button = ({onClick, className = '', title = '', children}) =>
+  <button onClick={onClick} className={className} title={title} type="button">{children}</button>;
