@@ -16,7 +16,6 @@ export default class App extends Component {
       error: null,
       queryFilter: '',
       querySearch: '',
-      page: 0,
     };
   }
 
@@ -28,7 +27,7 @@ export default class App extends Component {
     return fetch(`${API_SEARCH}?query=${this.state.querySearch}&page=${page}`).then(response => response.json())
       .then(result => {
         const hits = [...this.state.result.hits || [], ...result.hits];
-        this.setState({result: {...result, hits}, page});
+        this.setState({result: {...result, hits, page}});
       })
       .catch(error => this.setState({error}));
   }
@@ -61,7 +60,7 @@ export default class App extends Component {
   });
 
   moreArticles = () => {
-    this.collectArticles(this.state.page + 1);
+    this.collectArticles(this.state.result.page + 1);
   }
 
   removeArticle = deleteId => () => this.setState({result: {
