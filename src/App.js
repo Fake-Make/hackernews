@@ -12,7 +12,7 @@ export default class App extends Component {
     super(props);
 
     this.state = {
-      articles: [],
+      result: {},
       error: null,
       query: '',
     };
@@ -24,7 +24,7 @@ export default class App extends Component {
 
   collectArticles = () => {
     fetch(`${API_SEARCH}?query=${this.state.query}`).then(response => response.json())
-      .then(({hits: articles}) => this.setState({articles}))
+      .then(result => this.setState({result}))
       .catch(error => this.setState({error}));
   }
 
@@ -38,7 +38,7 @@ export default class App extends Component {
       />
       </aside>
       <Articles
-        articles={this.state.articles}
+        articles={this.state.result?.hits || []}
         query={this.state.query}
         onRemoveArticle={this.removeArticle}
       />
@@ -49,7 +49,8 @@ export default class App extends Component {
     this.setState({query: target.value.toString().toLocaleLowerCase()});
   };
 
-  removeArticle = deleteId => () => this.setState({
-    articles: this.state.articles.filter(({objectID}) => deleteId !== objectID)
-  });
+  removeArticle = deleteId => () => this.setState({result: {
+    ...this.state.result,
+    hits: this.state.result?.hits.filter(({objectID}) => deleteId !== objectID),
+  }});
 }
