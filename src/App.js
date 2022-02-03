@@ -43,7 +43,7 @@ export default class App extends Component {
   }
 
   render = () => {
-    const {results, queryFilter, querySearch} = this.state;
+    const {results, queryFilter, querySearch, error} = this.state;
     const articles = results[querySearch]?.hits || [];
 
     return (
@@ -56,15 +56,19 @@ export default class App extends Component {
             onRefresh={this.onRefresh}
           />
         </aside>
-        <Articles
-          articles={articles}
-          query={queryFilter}
-          onRemoveArticle={this.removeArticle}
-        />
-        <Button
-          onClick={this.moreArticles}
-          className="centered"
-        >Показать больше</Button>
+        {error ?
+          <p className="centered">При запросе статей произошла ошибка: {error.message}</p> :
+          <main className="articles">
+            <Articles
+              articles={articles}
+              query={queryFilter}
+              onRemoveArticle={this.removeArticle}
+            />
+            <Button onClick={this.moreArticles}>
+              Показать больше
+            </Button>
+          </main>
+        }
       </div>
     );
   }
