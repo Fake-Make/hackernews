@@ -1,4 +1,5 @@
 import {Component} from 'react';
+import axios from 'axios';
 
 import {Articles, Search, Button} from './ArticlesSubcomponents';
 // import logo from './logo.svg';
@@ -31,8 +32,8 @@ export default class App extends Component {
       return;
     }
 
-    return fetch(`${API_SEARCH}?query=${querySearch}&page=${page}`).then(response => response.json())
-      .then(({hits, page}) => this.setState({results: {
+    return axios(`${API_SEARCH}?query=${querySearch}&page=${page}`)
+      .then(({data: {hits, page}}) => this.setState({results: {
         ...results,
         [querySearch]: {page, hits: [
           ...cachedResult?.hits || [],
